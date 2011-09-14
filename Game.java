@@ -23,7 +23,7 @@ public class Game {
     final static int HEIGHT = 10;
     final static int board[][] = new int[WIDTH][HEIGHT];
 	private enum Direction { NORTH, SOUTH, EAST, WEST, NORTHEAST, NORTHWEST, 
-		SOUTHEAST, SOUTHEAST }
+		SOUTHEAST, SOUTHWEST };
 
     /**
      *  Decide if the move is legal
@@ -46,12 +46,12 @@ public class Game {
 	// Test if the move is next to the opposite color and then check if
 	// the move will result in flipping the color of the nearby opposite
 	// color peice.
-	for( Direction direction; Direction.values()){
-		Position i = move.getPiece(direction);
+	for( Direction direction: Direction.values()){
+		Position i = new Position(move, direction);
 		int flips = 1;
-		while( i.color == otherColor ){
+		while( i.getColor() == otherColor ){
 			flips++;
-			i = i.getPiece(direction);
+			i = new Position(i, direction);
 		}
 		if( flips > 1 ){
 			legal = true;
@@ -60,13 +60,13 @@ public class Game {
 	}	
 	return legal;
     }
-	private void flipPieces(Position from, int distance, int direction, int color){
+	private void flipPieces(Position from, int distance, Direction direction, int color){
 		if( distance > 0 ){
 			int r = from.getRow();
 			int c = from.getColumn();
 			board[r][c] = color;
 			if( distance > 1 ){
-				flipPieces(from.getPeice(direction), distance-1, direction, color);
+				flipPieces(new Position(from, direction), distance-1, direction, color);
 			}
 		}
 	}
@@ -74,6 +74,44 @@ public class Game {
 		public Position(int r, int c){
 			this.r = r;
 			this.c = c;
+			color = board[r][c];
+		}
+		public Position(Position pos, Direction dir){
+			this.r = pos.getRow();
+			this.c = pos.getColumn();
+			switch(dir){
+				case NORTH: 
+					c--;
+					break;
+				case SOUTH: 
+					c++;
+					break;
+				case EAST: 
+					r--;
+					break;
+				case WEST: 
+					r++;
+					break;
+				case NORTHEAST: 
+					c--;
+					r--;
+					break;
+				case NORTHWEST: 
+					c--;
+					r++;
+					break;
+				case SOUTHEAST: 
+					c++;
+					r--;
+					break;
+				case SOUTHWEST: 
+					c++;
+					r++;
+					break;
+				default:
+					break;
+			}
+			color = board[r][c];
 		}
 		private int getPiece(Direction dir){
 			switch(dir){
@@ -103,7 +141,11 @@ public class Game {
 		private int getColumn(){
 			return c;
 		}
+		private int getColor(){
+			return color;
+		}
 		private int r;
 		private int c;
+		private int color;
 	} 
 }
